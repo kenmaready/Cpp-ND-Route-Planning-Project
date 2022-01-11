@@ -1,5 +1,9 @@
 #include "route_planner.h"
+#include <iostream>
 #include <algorithm>
+
+using std::cout;
+using std::endl;
 
 RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, float end_x, float end_y): m_Model(model) {
     // Convert inputs to percentage:
@@ -39,6 +43,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
         n->g_value = current_node->g_value + current_node->distance(*n);
         n->h_value = CalculateHValue(n);
         n->visited = true;
+
         this->open_list.push_back(n);
     }
 }
@@ -52,7 +57,17 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 
 RouteModel::Node *RoutePlanner::NextNode() {
+    // create a lambda sorting function to sort by g+h (in descending order)
+    auto f_sort = [](RouteModel::Node *a, RouteModel::Node *b) {return (a->g_value + a->h_value) < (b->g_value + b->h_value); };
 
+    // sort the vector
+    std::sort(this->open_list.begin(), this->open_list.end(), f_sort);
+
+    // pop off last  item in vector:
+    RouteModel::Node *next_node = this->open_list.back();
+    this->open_list.pop_back();
+
+    return next_node;
 }
 
 
@@ -70,6 +85,21 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     std::vector<RouteModel::Node> path_found;
 
     // TODO: Implement your solution here.
+    RouteModel::Node path_node = *current_node;
+
+    while (path_node.parent != nullptr) {
+        path_found.push_back(path_node);
+        cout << "Added node (" << path_node.x << ", " << path_node.y << ") to path_node vector..." << endl;
+        distance += path_node.distance(*path_node.parent);
+        cout << "Distance is now " << distance << endl;
+        path_node = *path_node.parent;
+    }
+    // add start node to path_found vector;
+    path_found.push_back(path_node);
+
+    cout << "Reached beginning of path..." << endl;
+
+    std::reverse(path_found.begin(), path_found.end());
 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
