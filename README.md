@@ -1,6 +1,8 @@
 # Route Planning Project
 
-This repo contains the starter code for the Route Planning project.
+This repo contains my code for the Route Planning project in [Udacity's C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213).
+
+For the user input (the x and y coordinates of the starting and end points), this version asks the user first to input two integers for the starting point, and then in a follow-up question asks for two integers for the end point.
 
 <img src="map.png" width="600" height="450" />
 
@@ -32,6 +34,8 @@ git clone git@github.com:udacity/CppND-Route-Planning-Project.git --recurse-subm
  
 
 ## Compiling and Running
+
+(Note: for Linux systems, the cmake files have already been run and so for any changes to the ./src files you only need to run "make" in the build directory in order to update the executables before running them -- the executables are './test' or './OSM_A_star_search' from the build directory.  Otherwise, you may need to start from scratch and follow the compile and run directions below.)
 
 ### Compiling
 To compile the project, first, create a `build` directory and change to that directory:

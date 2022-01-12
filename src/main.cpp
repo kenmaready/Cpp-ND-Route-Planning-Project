@@ -11,6 +11,7 @@
 using namespace std::experimental;
 using std::cout;
 using std::cin;
+using std::endl;
 
 static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
 {   
@@ -27,6 +28,33 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
     if( contents.empty() )
         return std::nullopt;
     return std::move(contents);
+}
+
+struct Coordinates {
+    float x;
+    float y;
+};
+
+enum Point {start, end};
+
+Coordinates getCoordinates(const Point &pt) {
+
+    while (true) {
+        cout << "------------------------------------------" << endl;
+        cout << "Please enter the x and y coordinates for the " << (pt == Point::start ? "starting" : "ending") << " point (must be two numbers between 0 and 100, inclusive):" << endl; 
+        float x, y;
+        cin >> x;
+        cin >> y;
+         
+        // guard to check valid entries:
+       auto invalid = [](float num) {return num < 0 || num > 100; };
+        if (invalid(x) || invalid(y)) {
+            cout << "The x and y coordinates must be numbers between 0 and 100. Please try again..." << endl;
+        // else (if valid) return the entries as coordinates:
+        } else {
+            return Coordinates{x, y};
+        }
+    }
 }
 
 int main(int argc, const char **argv)
@@ -57,21 +85,15 @@ int main(int argc, const char **argv)
     // TODO 1: Declare floats `start_x`, `start_y`, `end_x`, and `end_y` and get
     // user input for these values using std::cin. Pass the user input to the
     // RoutePlanner object below in place of 10, 10, 90, 90.
-    float start_x, start_y, end_x, end_y;
-    cout << "Please enter the x and y coordinates of the starting point: \n";
-    cin >> start_x;
-    cin >> start_y;
-
-    cout << "Please enter the x and y coordinates of the goal: \n";
-    cin >> end_x;
-    cin >> end_y;
+    Coordinates start = getCoordinates(Point::start);
+    Coordinates end = getCoordinates(Point::end);
 
 
     // Build Model.
     RouteModel model{osm_data};
 
     // Create RoutePlanner object and perform A* search.
-    RoutePlanner route_planner{model, start_x, start_y, end_x, end_y};
+    RoutePlanner route_planner{model, start.x, start.y, end.x, end.y};
     route_planner.AStarSearch();
 
     std::cout << "Distance: " << route_planner.GetDistance() << " meters. \n";
