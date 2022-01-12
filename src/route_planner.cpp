@@ -40,7 +40,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
         n->h_value = CalculateHValue(n);
         n->visited = true;
 
-        this->open_list.push_back(n);
+        this->open_list.emplace_back(n);
     }
 }
 
@@ -76,25 +76,19 @@ RouteModel::Node *RoutePlanner::NextNode() {
 //   of the vector, the end node should be the last element.
 
 std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node *current_node) {
-    int loop_counter {0};
     // Create path_found vector
     distance = 0.0f;
     std::vector<RouteModel::Node> path_found;
 
     // TODO: Implement your solution here.
-    RouteModel::Node path_node = *current_node;
 
-    while (path_node.parent != nullptr) {
-        path_found.push_back(path_node);
-        distance += path_node.distance(*path_node.parent);
-        path_node = *path_node.parent;
-        loop_counter++;
-        if (loop_counter > 800) {
-            return path_found;
-        }
+    while (current_node->parent != nullptr) {
+        path_found.emplace_back(*current_node);
+        distance += current_node->distance(*(current_node->parent));
+        current_node = current_node->parent;
     }
     // add start node to path_found vector;
-    path_found.push_back(path_node);
+    path_found.emplace_back(*current_node);
 
     // reverse the order of the vector so that starting node is at the front:
     std::reverse(path_found.begin(), path_found.end());
@@ -116,17 +110,16 @@ void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
     // TODO: Implement your solution here.
+    start_node->visited = true;
     open_list.push_back(start_node);
-    int steps = 1;
     
     while (open_list.size() > 0) {
         current_node = NextNode();
+        current_node->visited = true;
         if (current_node->x == end_node->x && current_node->y == end_node->y) {
             this->m_Model.path = ConstructFinalPath(current_node);
-            return;
+            break;
         }
-        current_node->visited = true;
-        steps++;
         AddNeighbors(current_node);
     }
 
